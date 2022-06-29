@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'to_do.apps.ToDoConfig',
     'frontend.apps.FrontendConfig',
     'rest_framework',
+    'user',
 ]
 
 MIDDLEWARE = [

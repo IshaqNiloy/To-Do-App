@@ -12,5 +12,5 @@ urlpatterns = [
     #task-update
     path('task-update/<str:pk>', views.task_update, name='task-updte'),
     #task-delete
-    path('task-delete/<str:pk>', views.task_delete, name='task-delete')
+    path('task-delete/<str:pk>', views.task_delete, name='task-delete'),
 ]

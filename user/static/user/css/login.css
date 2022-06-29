@@ -1,0 +1,16 @@
+*{
+    /* background-color: ; */
+}
+
+.form {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input {
+    display: block;
+    width: 100%;
+    max-width: 800px;
+}

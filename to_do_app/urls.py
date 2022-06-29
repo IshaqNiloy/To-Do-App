@@ -8,5 +8,5 @@ urlpatterns = [
     #api/
     path('api/', include('to_do.urls')),
     #Home page
-    path('', include('frontend.urls')),
+    path('', include('user.urls')),
 ]
