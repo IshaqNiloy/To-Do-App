@@ -5,6 +5,8 @@ from django.conf.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #to-do/
-    path('', include('to_do.urls')),
+    #api/
+    path('api/', include('to_do.urls')),
+    #Home page
+    path('', include('frontend.urls')),
 ]
