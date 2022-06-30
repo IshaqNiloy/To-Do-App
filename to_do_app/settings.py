@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'to_do.apps.ToDoConfig',
     'frontend.apps.FrontendConfig',
     'rest_framework',
+    'knox',
     'user',
+    'frontend_user',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +127,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
+}

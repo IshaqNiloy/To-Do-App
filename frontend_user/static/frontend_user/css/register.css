@@ -1,0 +1,20 @@
+*{
+    /* background-color: ; */
+}
+
+h1 {
+    text-align: center;
+    padding: 15px;
+}
+
+.row {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn {
+    margin-top: 15px;
+    margin-bottom: 15px; 
+}
