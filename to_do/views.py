@@ -1,6 +1,6 @@
-from http.client import ResponseNotReady
-from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .serializers import TaskSerializer
 from .models import Task
@@ -21,10 +21,11 @@ def api_overview(request):
     return Response(api_urls)
 
 @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
 def task_list(request):
     tasks = Task.objects.all().order_by('-id')
     serializer = TaskSerializer(tasks, many=True)
-    
+    print(serializer.data)
     return Response(serializer.data)
 
 @api_view(['GET'])
