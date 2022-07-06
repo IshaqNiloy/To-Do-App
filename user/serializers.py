@@ -1,8 +1,12 @@
 from dataclasses import fields
 from typing_extensions import Required
 from django.contrib.auth.models import User
+import jwt
+from pkg_resources import require
 from rest_framework import serializers, validators
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.response import Response
+import jwt, datetime
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -40,6 +44,33 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class LoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required = True)
+    password = serializers.CharField(required = True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'password')
+
+    def authorization(self, validated_data):
+        try:    
+            user = User.objects.filter(email = validated_data['email']).first()
+            if user:
+                payload = {
+                    'id': user.id,
+                    'exp': datetime.datetime.utcnow() + datetime.datetime.utcnow(minutes = 60),
+                    'iat': datetime.datetime.utcnow()
+                }
+                token = jwt.encode(payload, 'SECRET_KEY', algorithm='HS256').decode('utf-8')
+
+                return Response({
+                    'jwt': token
+                })
+        except KeyError:
+            res = {'error': 'Please provide an email and a password'}
+            return Response(res)
+
 
 
 

@@ -4,8 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import redirect, render
 from rest_framework.response import Response
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .serializers import RegisterSerializer
+from .serializers import LoginSerializer, RegisterSerializer
 from rest_framework import generics
 
 # Create your views here.
@@ -15,6 +14,7 @@ def register(request):
     return render(request, 'user/register.html')
 
 @api_view(['POST'])
+
 # def login_api(request):
 #     serializer = AuthTokenSerializer(data=request.data)
 #     serializer.is_valid(raise_exception=True)
@@ -53,3 +53,8 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+
+
+class LoginView(generics.CreateAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer

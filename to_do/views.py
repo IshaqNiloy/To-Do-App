@@ -37,6 +37,7 @@ def task_detail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def task_create(request):
     serializer = TaskSerializer(data=request.data)
 
