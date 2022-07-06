@@ -5,11 +5,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     #login-api/
-    path('login-api/', views.login_api, name='login-api'),
+    # path('login-api/', views.login_api, name='login-api'),
     #login-api/
     path('user/', views.get_user_data, name='get-user-data'),
-    #register-api/
-    path('register-api/', views.register_api, name='register-api'),
+    #register/
+    path('register/', views.RegisterView.as_view(), name='register'),
     # #logout/
     # path('logout/', knox_views.LogoutView.as_view(), name='logout-view'),
     # #logoutall

@@ -1,41 +1,45 @@
 from dataclasses import fields
+from typing_extensions import Required
 from django.contrib.auth.models import User
 from rest_framework import serializers, validators
+from django.contrib.auth.password_validation import validate_password
 
 class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 'first_name', 'last_name')
-
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'email': {
-                'required': True,
-                'allow_blank': False,
-                'validators': [
-                    validators.UniqueValidator(
-                        User.objects.all(), 'A user with that email already exits'
-                    )
-                ]
-            }
-        }
-
-def create(self, validated_data):
-    username = validated_data.get('username')
-    password = validated_data.get('password')
-    email = validated_data.get('email')
-    first_name = validated_data.get('first_name')
-    last_name = validated_data.get('last_name')
-
-    user = User.objects.create(
-        username = username,
-        password = password,
-        email = email,
-        first_name = first_name,
-        last_name = last_name
+    email = serializers.EmailField(
+        required = True,
+        validators = [validators.UniqueValidator(queryset = User.objects.all())]
     )
 
-    return user
+    password1 = serializers.CharField(write_only = True, required = True, validators=[validate_password])
+    password2 = serializers.CharField(write_only = True, required = True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password1', 'password2', 'email', 'first_name', 'last_name')
+
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True}
+        }
+
+    def validate(self, attrs):
+        if attrs['password1'] != attrs['password2']:
+            raise serializers.ValidationError({"Password": "Password fields didn't match!"})
+        
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
+        )
+
+        user.set_password(validated_data['password1'])
+        user.save()
+
+        return user
 
 
 
