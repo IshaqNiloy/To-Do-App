@@ -1,4 +1,5 @@
 import imp
+from multiprocessing import AuthenticationError
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -8,6 +9,8 @@ from .serializers import LoginSerializer, RegisterSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import serializers, validators, status
+import jwt
+from to_do.models import Task
 
 # Create your views here.
 
@@ -60,19 +63,40 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(APIView):
     permission_classes = (AllowAny,)
 
-    def something(self) -> bool:
-        return "something"
-
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
+
         if serializer.is_valid():
             token = serializer.data['token']
-            return Response({"token": serializer.data['token']}, status=status.HTTP_200_OK)
+            response = Response({"Message": "Logged in successfully!"}, status=status.HTTP_200_OK)
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            response.data = {
+                'jwt': token
+            }
+            return Response({"Token": token}, status=status.HTTP_200_OK)
         return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
 
 
-    # def get_queryset(self):
-    #     print("asdasdasd")
-    #     return User.objects.all(id=1)
-    # serializer_class.authorization()
+class TasksView(APIView):
+    permission_classes = ([AllowAny,])
+
+    def get(self, request):
+        token = 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNjU3NjMwNjk2LCJpYXQiOjE2NTc2MjcwOTZ9.cpzVcXowumTMBdXwWnXk5Vq1QBqYwA0Jlh19VZGSHFc'
+        # token = request.COOKIES.get('jwt')
+        payload = jwt.decode(token, algorithms=['HS256'])
+        # print(payload)
+        return Response({"msg": 'hello'}, 200)
+        # if not token:
+        #     raise AuthenticationError('Unauthenticated!')
+        
+        # try:
+        #     payload = jwt.decode(token, 'SECRET_KEY', algorithms=['HS256'])
+        # except jwt.ExpiredSignatureError:
+        #     raise AuthenticationError('Unauthenticated!!')
+
+        # tasks = Task.objects.filter(id=payload['id']).first()
+
+        # return tasks
+
+

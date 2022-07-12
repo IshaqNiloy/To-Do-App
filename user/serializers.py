@@ -1,6 +1,7 @@
 from dataclasses import fields
 from json import tool
 from typing_extensions import Required
+from to_do_app import settings
 from django.contrib.auth.models import User
 import jwt
 from pkg_resources import require
@@ -8,6 +9,13 @@ from rest_framework import serializers, validators, status
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 import jwt, datetime
+
+from to_do.models import Task
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -64,7 +72,9 @@ class LoginSerializer(serializers.Serializer):
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 60),
                     'iat': datetime.datetime.utcnow()
                 }
-                token = jwt.encode(payload, 'SECRET_KEY', algorithm='HS256')
+                # token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+                data = {'foo': 'bar'}
+                token = jwt.encode(data, settings.SECRET_KEY, 'HS256').decode('utf-8')
                 validated_data['token'] = token
 
                 return validated_data

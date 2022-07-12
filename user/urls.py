@@ -12,6 +12,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     #login-api/
     path('login/', views.LoginView.as_view(), name='login-api'),
-    #login-api/
-    # path('user/', views.get_user_data, name='get-user-data'),
+    #tasks/
+    path('tasks/', views.TasksView.as_view(), name='task-view'),
 ]

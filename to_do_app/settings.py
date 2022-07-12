@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+# import sys
+# sys.path.append(".")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,14 +82,14 @@ REST_FRAMEWORK = {
     )
 }
 
-# REST_FRAMEWORK = {
+REST_FRAMEWORK = {
 #    'DEFAULT_AUTHENTICATION_CLASSES': (
 #        'rest_framework.authentication.TokenAuthentication',
 #    ),
-#    'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAdminUser'
-#    ),
-# }
+   'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny'
+   ),
+}
 
 WSGI_APPLICATION = 'to_do_app.wsgi.application'
 
@@ -182,7 +184,6 @@ SIMPLE_JWT = {
     'JWK_URL': None,
     'LEEWAY': 0,
 
-    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
