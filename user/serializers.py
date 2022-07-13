@@ -9,13 +9,15 @@ from rest_framework import serializers, validators, status
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 import jwt, datetime
+from django.contrib.auth import authenticate
 
 from to_do.models import Task
 
 class TaskSerializer(serializers.ModelSerializer):
+    # user_username = serializers.RelatedField(source='user.username', read_only=True)
     class Meta:
         model = Task
-        fields = '__all__'
+        fields = ['user', 'title']
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -55,7 +57,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField(required = True)
+    username = serializers.CharField(required = True)
     password = serializers.CharField(required = True)
     token = serializers.CharField(required=False)
 
@@ -65,19 +67,21 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, validated_data):
         try:    
-            user = User.objects.filter(email = validated_data['email']).first()
+            user = authenticate(username=validated_data['username'], password=validated_data['password'])
             if user:
                 payload = {
                     'id': user.id,
+                    'username' : validated_data['username'],
+                    'iat': datetime.datetime.utcnow(),
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 60),
-                    'iat': datetime.datetime.utcnow()
                 }
-                # token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-                data = {'foo': 'bar'}
-                token = jwt.encode(data, settings.SECRET_KEY, 'HS256').decode('utf-8')
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+                # data = {'foo': 'bar'}
+                # token = jwt.encode(data, settings.SECRET_KEY, 'HS256')
                 validated_data['token'] = token
 
                 return validated_data
+
         except KeyError:
             res = {'error': 'Please provide an email and a password'}
             return Response(res)
