@@ -66,7 +66,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny,]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -78,29 +78,29 @@ class LoginView(APIView):
                 response.data = {
                     'jwt': token
                 }
-            return Response({"Token": token}, status=status.HTTP_200_OK)
+            return response
         except Exception as e:
             return Response({"message": "Wrong Username or Password! Please try again."}, status=status.HTTP_400_BAD_REQUEST)
         
 
 
 class TasksView(APIView):
-    permission_classes = [IsAuthenticated,]
-    authentication_class = JWTAuthentication
+    # permission_classes = [IsAuthenticated,]
+    # authentication_class = JWTAuthentication
 
     def get(self, request):
-        token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.keY_oxWhi7jzcK9WnbuJf66mrCi4c17DmZesnhI6ik0'
-        # token = request.COOKIES.get('jwt')
+        # token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6OCwidXNlcm5hbWUiOiJ1c2VyNSJ9.Rm6WciPJxc3X2gTuPpH23oog3JmKl9UyFc9eke618qY'
+        token = request.COOKIES.get('jwt')
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         # print(payload)
         # return Response({"msg": 'hello'}, 200)
-        # if not token:
-        #     raise AuthenticationError('Unauthenticated!')
+        if not token:
+            raise AuthenticationError('Unauthenticated!')
         
-        # try:
-        #     payload = jwt.decode(token, 'SECRET_KEY', algorithms=['HS256'])
-        # except jwt.ExpiredSignatureError:
-        #     raise AuthenticationError('Unauthenticated!!')
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationError('Unauthenticated!!')
         print(payload['username'])
         tasks = Task.objects.filter(user__username=payload['username'])
         # tasks.user.fullname

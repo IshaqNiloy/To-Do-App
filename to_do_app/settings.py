@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 # import sys
 # sys.path.append(".")
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'to_do.apps.ToDoConfig',
     'frontend.apps.FrontendConfig',
     'rest_framework',
+    'corsheaders',
     'user',
     'frontend_user',
 ]
@@ -153,8 +155,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-from datetime import timedelta
-
 # JWT_AUTH = {
 #     'JWT_ENCODE_HANDLER':
 #         'rest_framework_jwt.utils.jwt_encode_handler',
@@ -233,3 +233,6 @@ AUTH_USER_MODEL = 'auth.User'
 
 ACTIVATE_JWT = True
 DRFSO2_URL_NAMESPACE = "drf"
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
