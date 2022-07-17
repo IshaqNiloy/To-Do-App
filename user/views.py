@@ -1,4 +1,4 @@
-from ast import Is
+from ast import Delete, Is
 import imp
 from multiprocessing import AuthenticationError
 from to_do_app import settings
@@ -72,41 +72,72 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         try:
             if serializer.is_valid():
-                token = serializer.data['token']
-                response = Response({"Message": "Logged in successfully!"}, status=status.HTTP_200_OK)
-                response.set_cookie(key='jwt', value=token, httponly=True)
-                response.data = {
-                    'jwt': token
-                }
-            return response
+                # token = serializer.data['access_token']
+                # response = Response({"Message": "Logged in successfully!"}, status=status.HTTP_200_OK)
+                # response.set_cookie(key='jwt', value=serializer.data['access_token'], httponly=True)
+                # response.data = {
+                #     'jwt': serializer.data['access_token']
+                # }
+                return Response(
+                    {
+                        "Message": "Logged in successfully!",
+                        'access_token': serializer.data['access_token'],
+                        'refresh_token': serializer.data['refresh_token']
+                    }, status=status.HTTP_200_OK
+                )
         except Exception as e:
-            return Response({"message": "Wrong Username or Password! Please try again."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Wrong Username or Password! Please try again."},
+                 status=status.HTTP_400_BAD_REQUEST
+            )
         
-
 
 class TasksView(APIView):
-    # permission_classes = [IsAuthenticated,]
-    # authentication_class = JWTAuthentication
+    permission_classes = [IsAuthenticated,]
 
     def get(self, request):
-        # token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6OCwidXNlcm5hbWUiOiJ1c2VyNSJ9.Rm6WciPJxc3X2gTuPpH23oog3JmKl9UyFc9eke618qY'
-        token = request.COOKIES.get('jwt')
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        # print(payload)
-        # return Response({"msg": 'hello'}, 200)
-        if not token:
-            raise AuthenticationError('Unauthenticated!')
-        
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationError('Unauthenticated!!')
-        print(payload['username'])
-        tasks = Task.objects.filter(user__username=payload['username'])
-        # tasks.user.fullname
-        # print('tasks.user.username =========================== ', tasks)
-
-
+        tasks = Task.objects.filter(user__username=request.user.username)
         serializer = TaskSerializer(tasks, many=True)
 
         return Response(serializer.data)
+
+
+class TaskCreateView(APIView):
+    permission_classes=[IsAuthenticated,]
+
+    def post(self, request):
+        request.data['user'] = request.user.id
+        serializer=TaskSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors)
+
+        return Response(serializer.data)
+
+
+class TaskUpdateView(APIView):
+    permission_class=[IsAuthenticated,]
+    
+    def put(self, request, pk):
+        # request.data['user'] = request.user.id
+        task = Task.objects.get(id=pk)
+        serializer = TaskSerializer(instance=task, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data)
+        
+
+class TaskDeleteView(APIView):
+    permission_classes=[IsAuthenticated,]
+
+    def delete(self, request, pk):
+        task = Task.objects.get(id=pk)
+        task.delete()
+
+        return Response(
+            {'Msg': 'Item successfully deleted!'}
+        )

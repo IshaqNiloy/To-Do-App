@@ -4,20 +4,21 @@ from typing_extensions import Required
 from to_do_app import settings
 from django.contrib.auth.models import User
 import jwt
+from rest_framework_simplejwt.tokens import RefreshToken
 from pkg_resources import require
 from rest_framework import serializers, validators, status
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 import jwt, datetime
 from django.contrib.auth import authenticate
-
 from to_do.models import Task
+
 
 class TaskSerializer(serializers.ModelSerializer):
     # user_username = serializers.RelatedField(source='user.username', read_only=True)
     class Meta:
         model = Task
-        fields = ['user', 'title']
+        fields = '__all__'
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -59,7 +60,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required = True)
     password = serializers.CharField(required = True)
-    token = serializers.CharField(required=False)
+    access_token = serializers.CharField(required=False)
+    refresh_token = serializers.CharField(required=False)
 
     # class Meta:
     #     model = User
@@ -69,16 +71,9 @@ class LoginSerializer(serializers.Serializer):
         try:    
             user = authenticate(username=validated_data['username'], password=validated_data['password'])
             if user:
-                payload = {
-                    'id': user.id,
-                    'username' : validated_data['username'],
-                    'iat': datetime.datetime.utcnow(),
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 60),
-                }
-                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
-                # data = {'foo': 'bar'}
-                # token = jwt.encode(data, settings.SECRET_KEY, 'HS256')
-                validated_data['token'] = token
+                token = RefreshToken.for_user(user)
+                validated_data['access_token'] = token.access_token
+                validated_data['refresh_token'] = token
 
                 return validated_data
 

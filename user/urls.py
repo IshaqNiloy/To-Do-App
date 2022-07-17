@@ -14,4 +14,10 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login-api'),
     #tasks/
     path('tasks/', views.TasksView.as_view(), name='task-view'),
+    #task-create/
+    path('task-create/', views.TaskCreateView.as_view(), name='task-create'),
+    #task-update/
+    path('task-update/<str:pk>/', views.TaskUpdateView.as_view(), name='task-update'),
+    #task-update/
+    path('task-delete/<str:pk>/', views.TaskDeleteView.as_view(), name='task-delete'),
 ]
